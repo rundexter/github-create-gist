@@ -62,8 +62,13 @@ module.exports = _.merge({
              * You should update this section with some test input for testing your module
              */
             input: {
-                //Replace VAR1 with the name of an expected input, and add more inputs as needed.
-                VAR1: 'foo'
+                "description": "the description for this gist",
+                "public": true,
+                "files": {
+                    "file1.txt": {
+                        "content": "String file contents"
+                    }
+                }
             }
         }
     }

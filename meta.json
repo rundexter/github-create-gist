@@ -4,23 +4,46 @@
 {
     //Required. Inputs the module expects.
     "inputs": [
-        //e.g.
-        /*
         {
-            "id": "from",
-            "title":"From"
+          "id": "files",
+          "title":"Files"
+        },
+        {
+          "id": "description",
+          "title":"Description"
+        },
+        {
+          "id": "public",
+          "title":"Public"
         }
-        */
     ],
     //Required. Outputs the module emits.
     "outputs": [
-      //e.g.
-      /*
         {
-            "id": "from",
-            "title":"From"
+            "id": "id",
+            "title":"ID"
+        },
+        {
+          "id": "description",
+          "title":"Description"
+        },
+        {
+          "id": "owner",
+          "title":"Owner"
+        },
+        {
+          "id": "files",
+          "title":"Files"
+        },
+        {
+          "id": "html_url",
+          "title":"HTML URL"
+        },
+        {
+          "id": "created_at",
+          "title":"Created at"
         }
-      */
     ],
-    "title": "GitHub Create Gist" /* Required.A display name for the module */
+    /* Required.A display name for the module */
+    "title": "GitHub Create Gist"
 }
