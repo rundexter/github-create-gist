@@ -1,55 +1,23 @@
-var GitHubApi = require("github");
-var _ = require('lodash');
+var _ = require('lodash'),
+    util = require('./util.js'),
+    GitHubApi = require("github"),
+    github = new GitHubApi({ version: '3.0.0' });
 
-var pickResultData = [
-    'id',
-    'description',
-    'owner.login',
-    'files.raw_url',
-    'html_url',
-    'created_at'
-];
+var pickInputs = {
+        'files': { key: 'files', type: 'object', validate: { req: true } },
+        'public': { key: 'public', type: 'boolean' },
+        'description': 'description'
+    },
+    pickOutputs = {
+        'id': 'id',
+        'owner': 'owner.login',
+        'files.raw_url': 'files.raw_url',
+        'description': 'description',
+        'html_url': 'html_url',
+        'created_at': 'created_at'
+    };
 
 module.exports = {
-    /**
-     * Pick API result.
-     *
-     * @param input
-     * @returns {{}}
-     */
-    pickResultData: function (input) {
-        var result = {};
-
-        pickResultData.forEach(function (dataKey) {
-            if (!_.isUndefined(_.get(input, dataKey, undefined))) {
-
-                _.set(result, dataKey, _.get(input, dataKey));
-            }
-        });
-
-        return result;
-    },
-
-    /**
-     * Authenticate gitHub user.
-     *
-     * @param dexter
-     * @param github
-     */
-    gitHubAuthenticate: function (dexter, github) {
-
-        if (dexter.environment('GitHubUserName') && dexter.environment('GitHubPassword')) {
-
-            github.authenticate({
-                type: dexter.environment('GitHubType') || "basic",
-                username: dexter.environment('GitHubUserName'),
-                password: dexter.environment('GitHubPassword')
-            });
-        } else {
-            this.fail('A GitHubUserName and GitHubPassword environment variable is required for this module');
-        }
-    },
-
     /**
      * The main entry point for the Dexter module
      *
@@ -57,22 +25,22 @@ module.exports = {
      * @param {AppData} dexter Container for all data used in this workflow.
      */
     run: function(step, dexter) {
+        var credentials = dexter.provider('github').credentials(),
+            inputs = util.pickInputs(step, pickInputs),
+            validateErrors = util.checkValidateErrors(inputs, pickInputs);
 
-        var github = new GitHubApi({
-            // required 
-            version: "3.0.0"
+        // check params.
+        if (validateErrors)
+            return this.fail(validateErrors);
+
+        github.authenticate({
+            type: 'oauth',
+            token: _.get(credentials, 'access_token')
         });
 
-        this.gitHubAuthenticate(dexter, github);
+        github.gists.create(inputs, function (error, gistInfo) {
 
-        if (!step.input('files').first()) {
-
-            this.fail('[files] inputs variable need for this module');
-        } else {
-            github.gists.create(_.pick(step.inputs(), ['files', 'description', 'public']), function (err, gistInfo) {
-
-                err ? this.fail(err) : this.complete(this.pickResultData(gistInfo));
-            }.bind(this));
-        }
+            error ? this.fail(error) : this.complete(util.pickOutputs(gistInfo, pickOutputs));
+        }.bind(this));
     }
 };
