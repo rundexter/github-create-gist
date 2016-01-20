@@ -45,7 +45,8 @@
         }
     ],
     "providers": [{
-        "name": "github"
+        "name": "github",
+        "scopes": [ "gist" ]
     }],
     "icon": "github",
     /* Required.A display name for the module */
